@@ -8,11 +8,11 @@ namespace Memory.Library;
 public class Board
 {
     private readonly Difficulty _difficulty;  
-    private int BoardSize =>
-        Constants.GetBoardSize(_difficulty);
     private ImmutableList<int> MemoryValues { get; }
     private ImmutableList<Card> GameBoard { get; }
     public IEnumerable<Card> GetGameBoard => GameBoard;
+    public int BoardSize =>
+        Constants.GetBoardSize(_difficulty);
     public Card this[int index]
     {
         get => index < GameBoard.Count ?
