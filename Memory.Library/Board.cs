@@ -7,15 +7,13 @@ namespace Memory.Library;
 
 public class Board
 {
-    private readonly Difficulty _difficulty;
-    private int BoardDimention =>
-        Constants.GetBoardDimention(_difficulty);
+    private readonly Difficulty _difficulty;  
     private int BoardSize =>
         Constants.GetBoardSize(_difficulty);
     private ImmutableList<int> MemoryValues { get; }
-    private ImmutableList<Cell> GameBoard { get; }
-    public IEnumerable<Cell> GetGameBoard => GameBoard;
-    public Cell this[int index]
+    private ImmutableList<Card> GameBoard { get; }
+    public IEnumerable<Card> GetGameBoard => GameBoard;
+    public Card this[int index]
     {
         get => index < GameBoard.Count ?
             GameBoard[index] : throw new ArgumentException("Index out fo board range");
@@ -23,15 +21,12 @@ public class Board
     private Board(Difficulty difficulty)
     {
         _difficulty = difficulty;
-        MemoryValues = Constants.GetMemoryValues(BoardSize).Shuffle();
+        MemoryValues = Constants.GetMemoryValues(BoardSize).ToList().Shuffle();
         GameBoard = [.. GenerateBoard()];
     }
     public static Board Initialize(Difficulty difficulty) => new(difficulty);
 
-    private IEnumerable<Cell> GenerateBoard() =>
+    private IEnumerable<Card> GenerateBoard() =>
         Enumerable.Range(0, BoardSize)
-        .Select(i => new Cell(
-            i / BoardDimention,
-            i % BoardDimention,
-            MemoryValues[i]));
+        .Select(i => new Card(MemoryValues[i]));
 }
