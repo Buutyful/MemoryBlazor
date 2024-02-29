@@ -14,5 +14,5 @@ public readonly struct Card(int id, int value) : IEquatable<Card>
     public static bool operator ==(Card? a, Card? b) => a is null ? b is null : a.Equals(b);
     public static bool operator !=(Card? a, Card? b) => !(a == b);
     public override int GetHashCode() => MemoryValue.GetHashCode();
-
+    public bool SameValue(Card other) => this.MemoryValue == other.MemoryValue;
 }

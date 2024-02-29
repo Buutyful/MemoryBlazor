@@ -17,7 +17,7 @@ public class Game
     public static Game Initialize(Difficulty difficulty) => new(difficulty);
     public bool MakeMove(Card card1, Card card2)
     {
-        if (card1 == card2)
+        if (card1 != card2 && card1.SameValue(card2))
         {
             CorrectCards.Add(card1);
             CorrectCards.Add(card2);
