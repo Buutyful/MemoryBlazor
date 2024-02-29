@@ -49,3 +49,23 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+.BoardTable {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    width: 100vw;
+    height: 100vh;
+    align-items: center;   
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color:antiquewhite;
+}
+.Card {
+    text-align: center;
+    font-size: 50px;
+    font-family: Arial;
+    -webkit-text-stroke: 2px black;
+}

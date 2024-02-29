@@ -1,26 +1,30 @@
-﻿
-namespace Memory.Library;
+﻿namespace Memory.Library;
 
 public class Game
 {
-    private readonly Board _board;
     private readonly Timer _timer;
+    public Board Board { get; }
     public GameState State { get; private set; }
     public int CountDown { get; private set; }
     public List<Card> CorrectCards { get; private set; } = [];
-    public Result Result { get; private set; }
-    public Game(Difficulty difficulty)
+    public Result? Result { get; private set; }
+    private Game(Difficulty difficulty)
     {
-        _board = Board.Initialize(difficulty);
+        Board = Board.Initialize(difficulty);
         CountDown = 120 * (int)difficulty;
         _timer = new Timer(OnTimerElapsed, null, 1000 * CountDown, 1000);
     }
-
-    public void CorrectMove(Card card)
+    public static Game Initialize(Difficulty difficulty) => new(difficulty);
+    public bool MakeMove(Card card1, Card card2)
     {
-        CorrectCards.Add(card);
-        CorrectCards.Add(card);
-        CheckGameOver();
+        if (card1 == card2)
+        {
+            CorrectCards.Add(card1);
+            CorrectCards.Add(card2);
+            CheckGameOver();
+            return true;
+        }
+        return false;
     }
     private void OnTimerElapsed(object? state)
     {
@@ -33,7 +37,7 @@ public class Game
     }
     private void CheckGameOver()
     {
-        if (_board.BoardSize == CorrectCards.Count)
+        if (Board.BoardSize == CorrectCards.Count)
             State = GameState.Over;
         Result = Result.Win();
     }

@@ -1,0 +1,65 @@
+﻿@inherits CardComponentBase
+
+<style>
+    .CardBack {
+        width: 100px;
+        height: 100px;
+        background-image: url(./images/christmas-background.jpeg);
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        cursor: pointer;
+        border: solid;
+        border-block-color: black;
+        margin-bottom: 5px;
+    }
+
+    .CardFront {
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        font-size: 50px;
+        font-family: Arial;
+        -webkit-text-stroke: 2px black;
+        cursor: pointer;
+        border: solid;
+        background-color: burlywood;
+        background-size: cover;
+        background-position: center center;
+        border-block-color: black;
+        margin-bottom: 5px;
+    }
+</style>
+
+<svg viewBox="0 0 100 100"
+     @onclick="Clicked"
+     class="@(Reveald ? "CardFront" : "CardBack")"
+     visibility="@(Hidden ? "hidden" : "visible")">
+    <text x="50" y="50" dominant-baseline="middle" text-anchor="middle">
+        @if (Reveald)
+        {
+            @Card.MemoryValue
+        }
+    </text>
+</svg>
+
+@code {
+
+    [Parameter]
+    public EventCallback OnClicked { get; set; }
+
+
+    private void Clicked()
+    {
+        if (!Reveald && !Hidden)
+        {
+            Reveald = true;
+            OnClicked.InvokeAsync(this);
+        }
+        else
+        {
+            Reveald = false;
+            OnClicked.InvokeAsync();
+        }
+    }
+}

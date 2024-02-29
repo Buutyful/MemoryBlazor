@@ -1,7 +1,81 @@
 ﻿@page "/"
-
+@using System.Collections.Concurrent
 <PageTitle>Home</PageTitle>
+@rendermode InteractiveServer
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<div style="width: 100%;">
+    <div class="container" style="max-width: 100vh; text-align: center;">
+        <div class="BoardTable">
+
+            @if (Game is not null)
+            {
+                @for (int i = 0; i < Game.Board.BoardSize; i++)
+                {
+                    <ClickableCard Card="Game.Board[i]"
+                                   OnClicked="@(click => HandleCardClick(click))"
+                                   @ref="@()"
+                                   @key="i"
+                                   @rendermode="InteractiveServer" />
+                }
+            }
+        </div>
+        <div class="row">
+            <div class="col" style="text-align: right">
+                <button type="button" class="btn btn-success" style="padding: 10px; font-weight: bold; color: white" @onclick=@Restart>
+                    Restart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Game Game { get; set; } = Game.Initialize(Difficulty.Easy);
+    private ConcurrentQueue<ClickableCard> clickedCards = [];
+
+    private void Restart()
+    {
+        Game = Game.Initialize(Difficulty.Easy);
+        foreach (var cardClicked in clickedCards) cardClicked.Reveald = false;
+        StateHasChanged();
+    }
+
+    private async void HandleCardClick(Object component)
+    {
+        if(component is null)
+        {
+            clickedCards.Clear();
+            return;
+        }
+        var clickedCard = component as ClickableCard ?? 
+        throw new Exception("Ops! Something went wrong");
+
+        if (clickedCards.Count < 1)
+        {
+            clickedCards.Enqueue(clickedCard);
+        } 
+        else if(clickedCards.Count >= 2)
+        {
+            foreach (var cardClicked in clickedCards) cardClicked.Reveald = false;
+            clickedCards.Clear();
+            clickedCards.Enqueue(clickedCard);
+        }
+        else
+        {
+            var firstClicked = clickedCards.First();
+            if (Game.MakeMove(firstClicked.Card, clickedCard.Card))
+            {
+                await Task.Delay(500);
+                firstClicked.Hidden = true;
+                clickedCard.Hidden = true;
+                clickedCards.Clear();
+            }
+            else
+            {                
+                clickedCards.Enqueue(clickedCard);
+            }
+        }
+        
+    }
+}
