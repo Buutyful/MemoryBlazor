@@ -6,6 +6,7 @@ public class Game
     public Board Board { get; }
     public GameState State { get; private set; }
     public int CountDown { get; private set; }
+    public int MovesCount { get; private set; }
     public List<Card> CorrectCards { get; private set; } = [];
     public Result? Result { get; private set; }
     private Game(Difficulty difficulty)
@@ -17,6 +18,7 @@ public class Game
     public static Game Initialize(Difficulty difficulty) => new(difficulty);
     public bool MakeMove(Card card1, Card card2)
     {
+        MovesCount++;
         if (card1 != card2 && card1.SameValue(card2))
         {
             CorrectCards.Add(card1);

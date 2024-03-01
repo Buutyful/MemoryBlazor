@@ -50,19 +50,15 @@ h1:focus {
     border-color: #929292;
 }
 .BoardTable {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
-    width: 100vw;
-    height: 100vh;
-    align-items: center;   
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-color:antiquewhite;
+    display: flex; /* Use flexbox */
+    flex-wrap: wrap; /* Wrap items to a new line when needed */
+    justify-content: center; /* Horizontally center the items */   
+    column-gap: 0.25rem;
+    row-gap: 0.25rem;
+    padding: 0.5rem;
 }
+
+
 .Card {
     text-align: center;
     font-size: 50px;

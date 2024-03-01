@@ -1,81 +1,34 @@
 ﻿@page "/"
-@using System.Collections.Concurrent
-<PageTitle>Home</PageTitle>
+<PageTitle>Memory</PageTitle>
 @rendermode InteractiveServer
 
-
-<div style="width: 100%;">
-    <div class="container" style="max-width: 100vh; text-align: center;">
-        <div class="BoardTable">
-
-            @if (Game is not null)
-            {
-                @for (int i = 0; i < Game.Board.BoardSize; i++)
-                {
-                    <ClickableCard Card="Game.Board[i]"
-                                   OnClicked="@(click => HandleCardClick(click))"
-                                   @ref="@()"
-                                   @key="i"
-                                   @rendermode="InteractiveServer" />
-                }
-            }
-        </div>
-        <div class="row">
-            <div class="col" style="text-align: right">
-                <button type="button" class="btn btn-success" style="padding: 10px; font-weight: bold; color: white" @onclick=@Restart>
-                    Restart
-                </button>
-            </div>
-        </div>
+@if (difficultySelected is not null)
+{
+    <div>
+        <GameComponent Difficulty="difficultySelected.Value" />
     </div>
-</div>
+}
+else
+{
+    <div>
+        <select @onchange="HandleDifficultyChange">
+            <option value="Easy">Select difficulty</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Impossible">Impossible</option>
+        </select>
+    </div>
+}
 
 @code {
-    private Game Game { get; set; } = Game.Initialize(Difficulty.Easy);
-    private ConcurrentQueue<ClickableCard> clickedCards = [];
+    private Difficulty? difficultySelected = null;
 
-    private void Restart()
+    private void HandleDifficultyChange(ChangeEventArgs e) => difficultySelected = e?.Value?.ToString() switch
     {
-        Game = Game.Initialize(Difficulty.Easy);
-        foreach (var cardClicked in clickedCards) cardClicked.Reveald = false;
-        StateHasChanged();
-    }
+        "Easy" => Difficulty.Easy,
+        "Medium" => Difficulty.Medium,
+        "Impossible" => Difficulty.Impossible,
+        _ => Difficulty.Easy
+    };
 
-    private async void HandleCardClick(Object component)
-    {
-        if(component is null)
-        {
-            clickedCards.Clear();
-            return;
-        }
-        var clickedCard = component as ClickableCard ?? 
-        throw new Exception("Ops! Something went wrong");
-
-        if (clickedCards.Count < 1)
-        {
-            clickedCards.Enqueue(clickedCard);
-        } 
-        else if(clickedCards.Count >= 2)
-        {
-            foreach (var cardClicked in clickedCards) cardClicked.Reveald = false;
-            clickedCards.Clear();
-            clickedCards.Enqueue(clickedCard);
-        }
-        else
-        {
-            var firstClicked = clickedCards.First();
-            if (Game.MakeMove(firstClicked.Card, clickedCard.Card))
-            {
-                await Task.Delay(500);
-                firstClicked.Hidden = true;
-                clickedCard.Hidden = true;
-                clickedCards.Clear();
-            }
-            else
-            {                
-                clickedCards.Enqueue(clickedCard);
-            }
-        }
-        
-    }
 }

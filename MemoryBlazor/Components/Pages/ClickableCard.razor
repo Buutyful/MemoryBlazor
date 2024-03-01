@@ -33,12 +33,12 @@
 
 <svg viewBox="0 0 100 100"
      @onclick="Clicked"
-     class="@(Reveald ? "CardFront" : "CardBack")"
-     visibility="@(Hidden ? "hidden" : "visible")">
+     class="@(GameCard.Reveald ? "CardFront" : "CardBack")"
+     visibility="@(GameCard.Hidden ? "hidden" : "visible")">
     <text x="50" y="50" dominant-baseline="middle" text-anchor="middle">
-        @if (Reveald)
+        @if (GameCard.Reveald)
         {
-            @Card.MemoryValue
+            @GameCard.Card.MemoryValue
         }
     </text>
 </svg>
@@ -48,17 +48,16 @@
     [Parameter]
     public EventCallback OnClicked { get; set; }
 
-
     private void Clicked()
     {
-        if (!Reveald && !Hidden)
+        if (!GameCard.Reveald && !GameCard.Hidden)
         {
-            Reveald = true;
+            GameCard.Reveald = true;
             OnClicked.InvokeAsync(this);
         }
         else
         {
-            Reveald = false;
+            GameCard.Reveald = false;
             OnClicked.InvokeAsync();
         }
     }

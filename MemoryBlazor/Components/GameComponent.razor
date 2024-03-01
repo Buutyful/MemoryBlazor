@@ -1,0 +1,84 @@
+﻿@using MemoryBlazor.Components.Pages
+@using System.Collections.Concurrent
+<div class="BoardTable">
+
+    @if (Game is not null)
+    {
+        <div>
+            <span>Number of moves: @Game.MovesCount</span>
+            <h2>Seconds Left: @Game.CountDown</h2>
+        </div>
+        <div>
+            @foreach (var gameCard in Cards)
+            {
+                <ClickableCard GameCard="gameCard"
+                               OnClicked="@( click => HandleCardClick(click))" />
+            }
+        </div>
+    }
+</div>
+<div class="row">
+    <div class="col" style="text-align: right">
+        <button type="button" class="btn btn-success" style="padding: 10px; font-weight: bold; color: white" @onclick=@Restart>
+            Restart
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Difficulty Difficulty { get; set; }
+    private Game Game { get; set; }
+    private List<GameCard> Cards { get; set; } = new();
+    private ConcurrentQueue<ClickableCard> clickedCards = [];
+    protected override void OnParametersSet()
+    {
+        Game = Game.Initialize(Difficulty);
+        Cards = Game.Board.GetGameBoard
+        .Select(card => new GameCard(card)).ToList();
+        base.OnParametersSet();
+    }
+  
+
+    private void Restart()
+    {
+        Game = Game.Initialize(Difficulty);
+        Cards = Game.Board.GetGameBoard
+        .Select(card => new GameCard(card)).ToList();
+        StateHasChanged();
+    }
+
+    private void HandleCardClick(Object component)
+    {
+        if (component is null) return;
+
+        var clickedCard = component as ClickableCard ??
+        throw new Exception("Ops! Something went wrong");
+
+        if (clickedCards.Count < 1)
+        {
+            clickedCards.Enqueue(clickedCard);
+        }
+        else if (clickedCards.Count >= 2)
+        {
+            foreach (var cardClicked in clickedCards) cardClicked.GameCard.Reveald = false;
+            clickedCards.Clear();
+            clickedCards.Enqueue(clickedCard);
+        }
+        else
+        {
+            var firstClicked = clickedCards.First();
+            if (Game.MakeMove(firstClicked.GameCard.Card, clickedCard.GameCard.Card))
+            {
+                firstClicked.GameCard.Hidden = true;
+                clickedCard.GameCard.Hidden = true;
+                clickedCards.Clear();
+            }
+            else
+            {
+                clickedCards.Enqueue(clickedCard);
+            }
+        }
+
+    }
+
+}
