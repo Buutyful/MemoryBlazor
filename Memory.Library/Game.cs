@@ -9,13 +9,17 @@ public class Game
     public int MovesCount { get; private set; }
     public List<Card> CorrectCards { get; private set; } = [];
     public Result? Result { get; private set; }
+    public event EventHandler<int> TimerElapsed;
     private Game(Difficulty difficulty)
-    {
+    {       
         Board = Board.Initialize(difficulty);
         CountDown = 120 * (int)difficulty;
-        _timer = new Timer(OnTimerElapsed, null, 1000 * CountDown, 1000);
+        _timer = new Timer(OnTimerElapsed, null, 1000, 1000);
     }
-    public static Game Initialize(Difficulty difficulty) => new(difficulty);
+    public static Game Initialize(Difficulty difficulty)
+    {        
+        return new Game(difficulty);
+    }
     public bool MakeMove(Card card1, Card card2)
     {
         MovesCount++;
@@ -35,8 +39,18 @@ public class Game
         {
             State = GameState.Over;
             Result = Result.Lost(EndReason.TimeOut);
+            UnsubscribeFromTimerElapsed();
         }
+
+        TimerElapsed.Invoke(this, CountDown);
+
     }
+    public void UnsubscribeFromTimerElapsed()
+    {
+        _timer?.Change(Timeout.Infinite, Timeout.Infinite);
+        _timer?.Dispose();
+    }
+
     private void CheckGameOver()
     {
         if (Board.BoardSize == CorrectCards.Count)

@@ -2,11 +2,11 @@
 @using System.Collections.Concurrent
 <div class="BoardTable">
 
-    @if (Game is not null)
+    @if (Game is not null && Game.State != GameState.Over)
     {
         <div>
             <span>Number of moves: @Game.MovesCount</span>
-            <h2>Seconds Left: @Game.CountDown</h2>
+            <h2>Seconds Left: @Timer</h2>
         </div>
         <div>
             @foreach (var gameCard in Cards)
@@ -15,6 +15,10 @@
                                OnClicked="@( click => HandleCardClick(click))" />
             }
         </div>
+    }
+    else if (Game is not null)
+    {
+        <h1>@Game.Result?.EndReason</h1>
     }
 </div>
 <div class="row">
@@ -27,6 +31,7 @@
 
 @code {
     [Parameter] public Difficulty Difficulty { get; set; }
+    public int Timer { get; private set; }
     private Game Game { get; set; }
     private List<GameCard> Cards { get; set; } = new();
     private ConcurrentQueue<ClickableCard> clickedCards = [];
@@ -37,14 +42,32 @@
         .Select(card => new GameCard(card)).ToList();
         base.OnParametersSet();
     }
-  
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Game.TimerElapsed += OnTimerElapsed;
+        }
+        base.OnAfterRender(firstRender);
+    }
+    private void OnTimerElapsed(Object? sender, int args)
+    {
+        InvokeAsync(() =>
+        {
+            Timer = args;
+            StateHasChanged();
+        });
+    }
 
     private void Restart()
     {
+        Game.UnsubscribeFromTimerElapsed();
+        Game.TimerElapsed -= OnTimerElapsed;
         Game = Game.Initialize(Difficulty);
         Cards = Game.Board.GetGameBoard
         .Select(card => new GameCard(card)).ToList();
         StateHasChanged();
+        Game.TimerElapsed += OnTimerElapsed;
     }
 
     private void HandleCardClick(Object component)
