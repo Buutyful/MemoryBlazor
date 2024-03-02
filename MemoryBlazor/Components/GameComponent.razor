@@ -18,27 +18,23 @@
     }
     else if (Game is not null)
     {
-        <h1>@Game.Result?.DisplayResult()</h1>
+        <h1>@Game.Result?.EndReason</h1>
     }
 </div>
 <div class="row">
-    <div>
-        <select @onchange="HandleDifficultyChange">
-            <option value="Restart">Restart</option>
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Impossible">Impossible</option>
-        </select>
+    <div class="col" style="text-align: right">
+        <button type="button" class="btn btn-success" style="padding: 10px; font-weight: bold; color: white" @onclick=@Restart>
+            Restart
+        </button>
     </div>
 </div>
 
 @code {
-        [Parameter] public Difficulty Difficulty { get; set; }
+    [Parameter] public Difficulty Difficulty { get; set; }
     public int Timer { get; private set; }
     private Game Game { get; set; }
     private List<GameCard> Cards { get; set; } = new();
     private ConcurrentQueue<ClickableCard> clickedCards = [];
-
     protected override void OnParametersSet()
     {
         Game = Game.Initialize(Difficulty);
@@ -54,7 +50,6 @@
         }
         base.OnAfterRender(firstRender);
     }
-
     private void OnTimerElapsed(Object? sender, int args)
     {
         InvokeAsync(() =>
@@ -64,11 +59,11 @@
         });
     }
 
-    private void Restart(Difficulty difficulty)
+    private void Restart()
     {
         Game.UnsubscribeFromTimerElapsed();
         Game.TimerElapsed -= OnTimerElapsed;
-        Game = Game.Initialize(difficulty);
+        Game = Game.Initialize(Difficulty);
         Cards = Game.Board.GetGameBoard
         .Select(card => new GameCard(card)).ToList();
         StateHasChanged();
@@ -107,17 +102,6 @@
             }
         }
 
-    }
-
-    private void HandleDifficultyChange(ChangeEventArgs e)
-    {
-        switch (e?.Value?.ToString())
-        {
-            case "Easy": Restart(Difficulty.Easy); break;
-            case "Medium": Restart(Difficulty.Medium); break;
-            case "Impossible": Restart(Difficulty.Impossible); break;
-            default: Restart(Difficulty); break;
-        }
     }
 
 }
